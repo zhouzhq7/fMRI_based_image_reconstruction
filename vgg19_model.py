@@ -1,12 +1,8 @@
 import numpy as np
 import time
 import tensorflow as tf
-import os
+from god_config import *
 
-MODEL_DIR = "./models"
-MODEL_NAME = "vgg19.npy"
-MODEL_PATH = os.path.join(MODEL_DIR, MODEL_NAME)
-VGG_MEAN = [103.939, 116.779, 123.68]
 class VGG19:
     def __init__(self, model_path=MODEL_PATH):
         print ("Load vgg19 model from {}".format(model_path))
@@ -18,7 +14,7 @@ class VGG19:
 
     def build(self, rgb):
         start_time = time.time()
-        print ("Start to build model....")
+        #print ("Start to build model....")
         rgb_rescaled = rgb * 255.0
 
         r, g, b = tf.split(value=rgb_rescaled, num_or_size_splits=3, axis=3)
@@ -28,7 +24,7 @@ class VGG19:
         assert b.get_shape().as_list()[1:] == [224, 224, 1]
         assert g.get_shape().as_list()[1:] == [224, 224, 1]
 
-        print ("shape of single channel is {}".format(b.get_shape()))
+        #print ("shape of single channel is {}".format(b.get_shape()))
 
         bgr = tf.concat(
             values=[
@@ -78,8 +74,8 @@ class VGG19:
 
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 
-        #self.params_dict = None
-        print(("build model finished: %ds" % (time.time() - start_time)))
+        # self.params_dict = None
+        # print(("build model finished: %ds" % (time.time() - start_time)))
 
 
     def conv_layer(self, prev, name):

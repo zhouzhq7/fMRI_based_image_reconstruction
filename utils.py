@@ -3,14 +3,8 @@ import os
 import csv
 from scipy import misc
 import numpy as np
-
-
-DATA_DIR = "./data"
-TRAINING_IMAGE_ID_FILE = "imageID_training.csv"
-TRAIN_IMAGE_DIR = "./data/train"
-VGG19_INPUT_IMAGE_SIZE = (224, 224, 3)
-
-RESULT_DIR = "./results"
+import h5py
+from god_config import *
 
 def read_images(print_not_found=False):
     # Read images ids from csv file
@@ -61,5 +55,33 @@ def read_images(print_not_found=False):
     return {"image_ids": new_image_id_and_category_id,
             "rescaled_images": np.array(rescaled_images)}
 
-def save_dnn_feature_map(features):
-   pass 
+def save_dnn_feature_map(image_ids, features, all_layers=True):
+    if features == None:
+        raise Exception("Input features is empty")
+        return
+
+    if all_layers:
+        LAYER_TO_BE_SAVED = LAYER_TO_BE_SAVED_FULL
+        RESULT_FILE = os.path.join(RESULT_DIR, IMAGE_FEATURES_FILE_NAME_FULL)
+    else:
+        LAYER_TO_BE_SAVED = LAYER_TO_BE_SAVED_LESS
+        RESULT_FILE = os.path.join(RESULT_DIR, IMAGE_FEATURES_FILE_NAME_LESS)
+
+    if len(LAYER_TO_BE_SAVED) != len(features):
+        raise Exception("Length of names and features unmatches.")
+    if len(image_ids) != (features[0].shape[0]):
+        raise Exception("Number of images and features unmatches.")
+
+    print ("Saving data...")
+    start_time = time.time()
+    if not os.path.exists(RESULT_DIR):
+        os.mkdir(RESULT_DIR)
+    for i in range(len(image_ids)):
+        with h5py.File(RESULT_FILE, 'a') as f:
+            grp = f.create_group(str(image_ids[i]))
+            for j in range(len(LAYER_TO_BE_SAVED)):
+                grp.create_dataset(LAYER_TO_BE_SAVED[j], data=features[j][i])
+    print ("Data saved. takes %.2fs" %(time.time() - start_time))
+
+
+
