@@ -6,8 +6,9 @@ import numpy as np
 from scipy import misc
 
 def main():
-    target_feature_map = get_dnn_features_by_imageid_and_layer(['11978233.018962'], ['conv5_4'])
-    reshaped_target = (target_feature_map['11978233.018962']['conv5_4']).reshape((1, 14, 14, 512))
+    #target_feature_map = get_dnn_features_by_imageid_and_layer(['11978233.018962'], ['conv5_4'])
+    #reshaped_target = (target_feature_map['11978233.018962']['conv5_4']).reshape((1, 14, 14, 512))
+    reshaped_target = np.load('tmp_conv5_4.npy')
     target = tf.placeholder(tf.float32, reshaped_target.shape)
 
     inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
