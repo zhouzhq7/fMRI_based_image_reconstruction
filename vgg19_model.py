@@ -12,9 +12,9 @@ class VGG19:
 
         print ("Model loaded, takes %ds." % (time.time()-start_time))
 
-    def build(self, rgb):
+    def build(self, rgb, target, train=False):
         start_time = time.time()
-        #print ("Start to build model....")
+        print ("Start to build model....")
         rgb_rescaled = rgb * 255.0
 
         r, g, b = tf.split(value=rgb_rescaled, num_or_size_splits=3, axis=3)
@@ -61,6 +61,7 @@ class VGG19:
         self.conv5_2 = self.conv_layer(self.conv5_1, "conv5_2")
         self.conv5_3 = self.conv_layer(self.conv5_2, "conv5_3")
         self.conv5_4 = self.conv_layer(self.conv5_3, "conv5_4")
+        self.loss = tf.reduce_mean(tf.losses.mean_squared_error(target, self.conv5_4))
         self.pool5 = self.max_pool(self.conv5_4, 'pool5')
 
         self.fc6 = self.fc_layer(self.pool5, "fc6")
@@ -74,8 +75,8 @@ class VGG19:
 
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 
-        # self.params_dict = None
-        # print(("build model finished: %ds" % (time.time() - start_time)))
+        self.params_dict = None
+        print(("build model finished: %ds" % (time.time() - start_time)))
 
 
     def conv_layer(self, prev, name):
@@ -123,3 +124,4 @@ class VGG19:
 
     def get_fc_weight(self, name):
         return tf.constant(self.params_dict[name][0], name="weights")
+

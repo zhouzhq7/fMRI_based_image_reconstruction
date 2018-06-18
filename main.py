@@ -2,61 +2,50 @@ from utils import *
 import time
 from vgg19_model import VGG19
 import tensorflow as tf
-import copy
 import numpy as np
+from scipy import misc
 
 def main():
-    data = read_images()
-    data_shape = data["rescaled_images"].shape
-    batch_size = 15
-    num_of_batch = int(data_shape[0]/batch_size)+1
+    target_feature_map = get_dnn_features_by_imageid_and_layer(['11978233.018962'], ['conv5_4'])
+    reshaped_target = (target_feature_map['11978233.018962']['conv5_4']).reshape((1, 14, 14, 512))
+    target = tf.placeholder(tf.float32, reshaped_target.shape)
 
-    save_every = 4
-
-    inputs = tf.placeholder("float", (None, 224, 224, 3))
+    inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
 
     vgg19 = VGG19()
 
-    with tf.name_scope("vgg_content"):
-        vgg19.build(inputs)
-    layers_so_far = []
-    images_id_so_far = []
-    for i in range(num_of_batch):
-        if i == num_of_batch - 1:
-            rgb = (data["rescaled_images"][i*batch_size:, :, :, :]).astype("float32")
-            images_id_so_far += data["image_ids"][0][i*batch_size:]
-        else:
-            rgb = (data["rescaled_images"][i*batch_size:(i+1)*batch_size,:, :, :]).astype("float32")
-            images_id_so_far += data["image_ids"][0][i*batch_size:(i+1)*batch_size]
+    vgg19.build(inputs, reshaped_target)
 
-        feed_dict = {inputs: rgb}
-        start_time = time.time()
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(vgg19.loss)
 
-        with tf.Session() as sess:
-            print ("Start to evaluate batch {}/{}".format(i+1, num_of_batch))
-            layers = sess.run([vgg19.conv1_2, vgg19.conv2_2,
-                               vgg19.conv3_4,
-                               vgg19.conv4_4,
-                               vgg19.conv5_4,
-                               vgg19.fc6, vgg19.fc7, vgg19.fc8],
-                               feed_dict=feed_dict)
+    init = tf.global_variables_initializer()
 
-            print ("Time spent : %.5ss" %(time.time()-start_time))
+    saver = tf.train.Saver()
 
-            if len(layers_so_far) == 0:
-                layers_so_far = copy.deepcopy(layers)
-            else:
-                if len(layers_so_far) != len(layers):
-                    raise Exception('Configurations doesn\'t match previous')
-                else:
-                    for j in range(len(layers_so_far)):
-                        layers_so_far[j] = np.concatenate((layers_so_far[j], layers[j]) , axis=0)
-        if (i+1) % save_every == 0 or i == num_of_batch-1:
-            save_dnn_feature_map(features=layers_so_far, image_ids=images_id_so_far, all_layers=False)
-            layers_so_far = []
-            images_id_so_far = []
+    feed_dict = {target: reshaped_target}
 
+    num_of_epoches = 20000
+    save_every = 100
+    # create folder to store the reconstructed images
+    if not os.path.exists(RECONS_IMAGE_PATH):
+        os.mkdir(RECONS_IMAGE_PATH)
 
+    with tf.Session() as sess:
+        sess.run(init)
+        for i in range(num_of_epoches):
+            _, cost = sess.run([optimizer, vgg19.loss], feed_dict=feed_dict)
+            print ("Epoch %d/%d, cost: %.4f" % ((i+1), num_of_epoches, cost))
+            if (i+1) % save_every == 0:
+                start_time = time.time()
+                print ("Start to save model...")
+                saver.save(sess, SAVED_MODELS_PATH+'/model_ckpt', global_step=(i+1))
+                print ("Model saved, takes %.3f" %(time.time()-start_time))
+                im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
+                im = (im*255).astype(np.uint8)
+                image_file_name = str(i+1)+'.jpg'
+                img_path = RECONS_IMAGE_PATH + '/' + image_file_name
+                misc.imsave(img_path, im)
 
 if __name__=="__main__":
     main()
+    print ("Good good study, day day up!")
