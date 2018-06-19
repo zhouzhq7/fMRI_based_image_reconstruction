@@ -1,3 +1,4 @@
-results/
+results/model_checkpoints
 .idea/
 __pycache__/
+models/
