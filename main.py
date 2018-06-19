@@ -12,7 +12,8 @@ def main():
 
     for key in tmp.keys():
         reshaped_target = tmp[key].reshape([1]+list(tmp[key].shape))
-        recon_image_by_given_layer(reshaped_target, key)
+        with tf.Graph().as_default():
+            recon_image_by_given_layer(reshaped_target, key)
 
 if __name__=="__main__":
     main()
