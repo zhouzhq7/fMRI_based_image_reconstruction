@@ -4,6 +4,7 @@ from vgg19_model import VGG19
 import tensorflow as tf
 import numpy as np
 from scipy import misc
+<<<<<<< HEAD
 import pickle
 
 def main():
