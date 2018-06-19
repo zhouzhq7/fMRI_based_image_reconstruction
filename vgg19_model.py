@@ -12,7 +12,7 @@ class VGG19:
 
         print ("Model loaded, takes %ds." % (time.time()-start_time))
 
-    def build(self, rgb, target, train=False):
+    def build(self, rgb, target, name, train=False):
         start_time = time.time()
         print ("Start to build model....")
         rgb_rescaled = rgb * 255.0
@@ -61,7 +61,6 @@ class VGG19:
         self.conv5_2 = self.conv_layer(self.conv5_1, "conv5_2")
         self.conv5_3 = self.conv_layer(self.conv5_2, "conv5_3")
         self.conv5_4 = self.conv_layer(self.conv5_3, "conv5_4")
-        self.loss = tf.reduce_mean(tf.losses.mean_squared_error(target, self.conv5_4))
         self.pool5 = self.max_pool(self.conv5_4, 'pool5')
 
         self.fc6 = self.fc_layer(self.pool5, "fc6")
@@ -73,11 +72,34 @@ class VGG19:
 
         self.fc8 = self.fc_layer(self.relu7, "fc8")
 
+        target_pred = self.get_layer_by_name(name)
+        self.loss = tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
+
+
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 
         self.params_dict = None
         print(("build model finished: %ds" % (time.time() - start_time)))
 
+    def get_layer_by_name(self, name):
+        if name == 'conv1_2':
+            return self.conv1_2
+        elif name == 'conv2_2':
+            return self.conv2_2
+        elif name == 'conv3_4':
+            return self.conv3_4
+        elif name == 'conv4_4':
+            return self.conv4_4
+        elif name == 'conv5_4':
+            return self.conv5_4
+        elif name == 'fc6':
+            return self.fc6
+        elif name == 'fc7':
+            return self.fc7
+        elif name == 'fc8':
+            return self.fc8
+        else:
+            raise Exception("{} is not supported in this version.".format(name))
 
     def conv_layer(self, prev, name):
         with tf.variable_scope(name):
