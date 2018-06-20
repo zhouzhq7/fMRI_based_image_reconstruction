@@ -1,4 +1,8 @@
 results/model_checkpoints
 .idea/
+results/checkpoint
+results/images_feature.h5
+results/images_feature_less.h5
+results/images_feature_less.zip
 __pycache__/
 models/
