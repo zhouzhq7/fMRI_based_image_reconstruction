@@ -197,16 +197,20 @@ def recon_image_by_given_layer(reshaped_target, name):
     if not os.path.exists(RECONS_IMAGE_PATH):
         os.mkdir(RECONS_IMAGE_PATH)
 
+    logs_path = os.path.join(LOGS_PATH, name)
+
     with tf.Session() as sess:
         sess.run(init)
+        summary_w = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
         for i in range(num_of_epoches):
-            _, cost = sess.run([optimizer, vgg19.loss], feed_dict=feed_dict)
+            _, cost, summary = sess.run([optimizer, vgg19.loss, vgg19.merged_summary_ops], feed_dict=feed_dict)
             print ("Epoch %d/%d, cost: %.4f" % ((i+1), num_of_epoches, cost))
             if (i+1) % save_every == 0:
                 start_time = time.time()
                 print ("Start to save model...")
                 saver.save(sess, SAVED_MODELS_PATH+'/model_ckpt/'+name, global_step=(i+1))
                 print ("Model saved, takes %.3f" %(time.time()-start_time))
+                summary_w.add_summary(summary, (i+1))
                 im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
                 im = (im*255).astype(np.uint8)
                 image_file_name = str(i+1)+'.jpg'

@@ -75,6 +75,8 @@ class VGG19:
         target_pred = self.get_layer_by_name(name)
         self.loss = tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
 
+        tf.summary.scalar('loss', self.loss)
+        self.merged_summary_ops = tf.summary.merge_all()
 
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 
