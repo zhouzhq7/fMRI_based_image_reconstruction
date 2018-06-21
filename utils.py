@@ -191,8 +191,8 @@ def recon_image_by_given_layer(reshaped_target, name):
 
     feed_dict = {target: reshaped_target}
 
-    num_of_epoches = 4000000
-    save_every = 800000
+    num_of_epoches = 100000
+    save_every = 10000
     # create folder to store the reconstructed images
     if not os.path.exists(RECONS_IMAGE_PATH):
         os.mkdir(RECONS_IMAGE_PATH)
