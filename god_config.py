@@ -44,3 +44,6 @@ SAVED_MODELS_PATH = os.path.join(RESULT_DIR, SAVED_MODELS_DIR)
 LOGS_PATH = "./logs"
 TENSORFLOW_LOG_DIR = "tensorflow_log"
 LOG_TENSORFLOW_PATH = os.path.join(LOGS_PATH, TENSORFLOW_LOG_DIR)
+
+# path constant to save figures
+FIG_DIR = './figs'

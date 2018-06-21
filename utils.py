@@ -191,8 +191,8 @@ def recon_image_by_given_layer(reshaped_target, name):
 
     feed_dict = {target: reshaped_target}
 
-    num_of_epoches = 200000
-    save_every = 10000
+    num_of_epoches = 4000000
+    save_every = 800000
     # create folder to store the reconstructed images
     if not os.path.exists(RECONS_IMAGE_PATH):
         os.mkdir(RECONS_IMAGE_PATH)
@@ -204,7 +204,7 @@ def recon_image_by_given_layer(reshaped_target, name):
         summary_w = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
         for i in range(num_of_epoches):
             _, cost, summary = sess.run([optimizer, vgg19.loss, vgg19.merged_summary_ops], feed_dict=feed_dict)
-            print ("Epoch %d/%d, cost: %.4f" % ((i+1), num_of_epoches, cost))
+            print ("Processing %s, epoch %d/%d, cost: %.4f" % (name, (i+1), num_of_epoches, cost))
             if (i+1) % save_every == 0:
                 start_time = time.time()
                 print ("Start to save model...")
