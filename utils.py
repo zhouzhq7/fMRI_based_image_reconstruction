@@ -85,13 +85,12 @@ def save_dnn_feature_map(image_ids, features, all_layers=True):
                 grp.create_dataset(LAYER_TO_BE_SAVED[j], data=features[j][i])
     print ("Data saved. takes %.2fs" %(time.time() - start_time))
 
-def extract_dnn_features():
-    data = read_images()
+def extract_dnn_features(data, **args):
     data_shape = data["rescaled_images"].shape
-    batch_size = 15
+    batch_size = args['batch_size']
     num_of_batch = int(data_shape[0]/batch_size)+1
 
-    save_every = 4
+    save_every = args['save_every']
 
     inputs = tf.placeholder("float", (None, 224, 224, 3))
 
@@ -175,7 +174,8 @@ def get_dnn_features_by_imageid_and_layer(
 
     return ret
 
-def recon_image_by_given_layer(reshaped_target, name):
+def recon_image_by_given_layer(reshaped_target, name,
+                               num_of_epoches=100000, save_every=10000):
 
     target = tf.placeholder(tf.float32, reshaped_target.shape)
 
@@ -191,8 +191,6 @@ def recon_image_by_given_layer(reshaped_target, name):
 
     feed_dict = {target: reshaped_target}
 
-    num_of_epoches = 100000
-    save_every = 10000
     # create folder to store the reconstructed images
     if not os.path.exists(RECONS_IMAGE_PATH):
         os.mkdir(RECONS_IMAGE_PATH)
