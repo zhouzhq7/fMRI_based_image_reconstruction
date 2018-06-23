@@ -189,8 +189,8 @@ def recon_image_by_given_layer(reshaped_target, name,
     #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
 
     init = tf.global_variables_initializer()
-
-    saver = tf.train.Saver()
+    if use_summary:
+        saver = tf.train.Saver()
 
     feed_dict = {target: reshaped_target}
 
