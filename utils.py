@@ -213,7 +213,7 @@ def recon_image_by_given_layer(reshaped_target, name,
             summary_w = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
         for i in range(num_of_epoches):
             _, cost, summary = sess.run([optimizer, vgg19.loss, vgg19.merged_summary_ops], feed_dict=feed_dict)
-            print ("Processing %s, epoch %d/%d, cost: %.4f" % (name, (i+1), num_of_epoches, cost))
+            print ("Processing %s, optimizer: %s, epoch %d/%d, cost: %.4f" % (name, opt, (i+1), num_of_epoches, cost))
             if (i+1) % save_every == 0:
                 start_time = time.time()
                 if use_summary:
