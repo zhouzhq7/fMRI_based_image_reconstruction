@@ -185,8 +185,8 @@ def recon_image_by_given_layer(reshaped_target, name,
     inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
     vgg19 = VGG19()
     vgg19.build(inputs, reshaped_target, name)
-    #optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(vgg19.loss)
-    optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
+    optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(vgg19.loss)
+    #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
 
     init = tf.global_variables_initializer()
 

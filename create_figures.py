@@ -2,7 +2,7 @@ from god_config import *
 import glob
 import matplotlib.pyplot as plt
 from scipy import misc
-
+import pickle
 NUM_OF_IMAGE_COL = 8
 
 
@@ -47,5 +47,39 @@ def create_recons_image_evolution(show_image=False):
         os.mkdir(FIG_DIR)
     plt.savefig(os.path.join(FIG_DIR, 'reconstructed_images.pdf'))
 
-create_recons_image_evolution()
+def create_loss_figure():
+    # check log folder exist or not
+    if not os.path.exists(LOGS_PATH):
+        print ("Cannot find log folder.")
+        return
+    log_sub_paths = glob.glob(LOGS_PATH+'/*')
+
+    # check if there exist log files
+    if len(log_sub_paths) == 0:
+        print ("There are no log files.")
+        return
+
+    for sub_path in log_sub_paths:
+        name = sub_path.split('/')[-1]
+        loss_files = glob.glob(sub_path+'/*.pkl')
+        losses = []
+        loss_param = []
+        for lf in loss_files:
+            with open(lf, 'rb') as f:
+                cur_loss = pickle.load(f)
+                losses.append(cur_loss)
+                tmp = (lf.split('/')[-1]).split('_')[0]
+                loss_param.append(tmp)
+        x = [i for i in range(len(losses[0]))]
+        for i in range(len(losses)):
+            plt.plot(x, losses[i], label='lr='+loss_param[i], linewidth=3)
+        plt.yscale('log')
+        plt.xlabel('epochs (*100)', fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.ylabel('loss', fontsize=12)
+        plt.legend()
+        plt.savefig(os.path.join(FIG_DIR,'rms_'+name+'_lr.pdf'), bbox_inches='tight')
+        plt.gcf().clear()
+create_loss_figure()
 
