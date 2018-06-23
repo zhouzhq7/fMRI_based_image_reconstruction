@@ -7,6 +7,7 @@ from god_config import *
 import tensorflow as tf
 from vgg19_model import VGG19
 import copy
+import pickle
 
 def read_images(print_not_found=False):
     # Read images ids from csv file
@@ -175,7 +176,8 @@ def get_dnn_features_by_imageid_and_layer(
     return ret
 
 def recon_image_by_given_layer(reshaped_target, name,
-                               num_of_epoches=100000, save_every=10000):
+                               num_of_epoches=100000, save_every=10000,
+                               use_summary= False, lr=0.01, decay=0.99, momentum=0.9):
 
     target = tf.placeholder(tf.float32, reshaped_target.shape)
 
@@ -183,7 +185,8 @@ def recon_image_by_given_layer(reshaped_target, name,
     inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
     vgg19 = VGG19()
     vgg19.build(inputs, reshaped_target, name)
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(vgg19.loss)
+    #optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(vgg19.loss)
+    optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
 
     init = tf.global_variables_initializer()
 
@@ -196,10 +199,13 @@ def recon_image_by_given_layer(reshaped_target, name,
         os.mkdir(RECONS_IMAGE_PATH)
 
     logs_path = os.path.join(LOGS_PATH, name)
-
+    if not os.path.exists(logs_path):
+        os.makedirs(logs_path)
+    losses = []
     with tf.Session() as sess:
         sess.run(init)
-        summary_w = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
+        if use_summary:
+            summary_w = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
         for i in range(num_of_epoches):
             _, cost, summary = sess.run([optimizer, vgg19.loss, vgg19.merged_summary_ops], feed_dict=feed_dict)
             print ("Processing %s, epoch %d/%d, cost: %.4f" % (name, (i+1), num_of_epoches, cost))
@@ -208,7 +214,8 @@ def recon_image_by_given_layer(reshaped_target, name,
                 print ("Start to save model...")
                 saver.save(sess, SAVED_MODELS_PATH+'/model_ckpt/'+name, global_step=(i+1))
                 print ("Model saved, takes %.3f" %(time.time()-start_time))
-                summary_w.add_summary(summary, (i+1))
+                if use_summary:
+                    summary_w.add_summary(summary, (i+1))
                 im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
                 im = (im*255).astype(np.uint8)
                 image_file_name = str(i+1)+'.jpg'
@@ -216,6 +223,10 @@ def recon_image_by_given_layer(reshaped_target, name,
                     os.mkdir(RECONS_IMAGE_PATH + '/' +name )
                 img_path = RECONS_IMAGE_PATH + '/' + name + '/' + image_file_name
                 misc.imsave(img_path, im)
-
+            if i % 100 == 0:
+                losses.append(cost)
+        loss_log_file_name = logs_path+'/'+str(lr)+'_'+str(decay)+'_'+str(momentum)+'pkl'
+        with open(loss_log_file_name, 'wb') as f:
+            pickle.dump(losses, f)
 
 
