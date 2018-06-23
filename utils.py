@@ -211,9 +211,10 @@ def recon_image_by_given_layer(reshaped_target, name,
             print ("Processing %s, epoch %d/%d, cost: %.4f" % (name, (i+1), num_of_epoches, cost))
             if (i+1) % save_every == 0:
                 start_time = time.time()
-                print ("Start to save model...")
-                saver.save(sess, SAVED_MODELS_PATH+'/model_ckpt/'+name, global_step=(i+1))
-                print ("Model saved, takes %.3f" %(time.time()-start_time))
+                if use_summary:
+                    print ("Start to save model...")
+                    saver.save(sess, SAVED_MODELS_PATH+'/model_ckpt/'+name, global_step=(i+1))
+                    print ("Model saved, takes %.3f" %(time.time()-start_time))
                 if use_summary:
                     summary_w.add_summary(summary, (i+1))
                 im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
