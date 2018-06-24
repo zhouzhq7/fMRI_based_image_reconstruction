@@ -178,14 +178,14 @@ def get_dnn_features_by_imageid_and_layer(
 def recon_image_by_given_layer(reshaped_target, name,
                                num_of_epoches=100000, save_every=10000,
                                use_summary= False, lr=0.01, decay=0.99, momentum=0.9,
-                               opt='adam'):
+                               opt='adam', use_prior=False):
 
     target = tf.placeholder(tf.float32, reshaped_target.shape)
 
 
     inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
     vgg19 = VGG19()
-    vgg19.build(inputs, reshaped_target, name, use_prior=True)
+    vgg19.build(inputs, reshaped_target, name, use_prior=use_prior)
     optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(vgg19.loss)
     #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
 
