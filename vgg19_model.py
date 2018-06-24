@@ -12,7 +12,7 @@ class VGG19:
 
         print ("Model loaded, takes %ds." % (time.time()-start_time))
 
-    def build(self, rgb, target, name, train=False):
+    def build(self, rgb, target, name, train=False, use_prior=False):
         start_time = time.time()
         print ("Start to build model....")
         rgb_rescaled = rgb * 255.0
@@ -87,11 +87,19 @@ class VGG19:
 
         self.fc8 = self.fc_layer(self.relu7, "fc8")
 
-        target_pred = self.get_layer_by_name(name)
-        self.loss = tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
-
-        tf.summary.scalar('loss', self.loss)
-        self.merged_summary_ops = tf.summary.merge_all()
+        self.loss = tf.convert_to_tensor(0.0, tf.float32)
+        if isinstance(target, dict):
+             for k, v in target.items():
+                 target_pred = self.get_layer_by_name(k)
+                 self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(v, target_pred)),
+                                        tf.reduce_sum(v))
+        else:
+            target_pred = self.get_layer_by_name(name)
+            self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
+        if use_prior:
+            im = tf.get_default_graph().get_tensor_by_name('recons_image:0')
+            tv_image = tf.image.total_variation(im)
+            self.loss += tv_image
 
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 

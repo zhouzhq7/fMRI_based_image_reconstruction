@@ -184,7 +184,7 @@ def recon_image_by_given_layer(reshaped_target, name,
 
     inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
     vgg19 = VGG19()
-    vgg19.build(inputs, reshaped_target, name)
+    vgg19.build(inputs, reshaped_target, name, use_prior=True)
     optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(vgg19.loss)
     #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
 
@@ -204,10 +204,8 @@ def recon_image_by_given_layer(reshaped_target, name,
     losses = []
     with tf.Session() as sess:
         sess.run(init)
-        if use_summary:
-            summary_w = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
         for i in range(num_of_epoches):
-            _, cost, summary = sess.run([optimizer, vgg19.loss, vgg19.merged_summary_ops], feed_dict=feed_dict)
+            _, cost = sess.run([optimizer, vgg19.loss], feed_dict=feed_dict)
             print ("Processing %s, epoch %d/%d, cost: %.4f" % (name, (i+1), num_of_epoches, cost))
             if (i+1) % save_every == 0:
                 start_time = time.time()
@@ -215,8 +213,6 @@ def recon_image_by_given_layer(reshaped_target, name,
                     print ("Start to save model...")
                     saver.save(sess, SAVED_MODELS_PATH+'/model_ckpt/'+name, global_step=(i+1))
                     print ("Model saved, takes %.3f" %(time.time()-start_time))
-                if use_summary:
-                    summary_w.add_summary(summary, (i+1))
                 im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
                 im = (im*255).astype(np.uint8)
                 image_file_name = str(i+1)+'.jpg'
