@@ -13,11 +13,10 @@ def main():
         tmp[key] = tmp[key].reshape([1]+list(tmp[key].shape))
 
     for key in tmp.keys():
-        if key == 'conv1_1' or key == 'conv2_2':
-            reshaped_target = tmp[key]
-            with tf.Graph().as_default():
-                recon_image_by_given_layer(reshaped_target, key, 200000, 10000,
-                                           use_summary=False, lr=0.001, use_prior=True)
+        reshaped_target = tmp[key]
+        with tf.Graph().as_default():
+            recon_image_by_given_layer(reshaped_target, key, 200000, 10000,
+                                       use_summary=False, lr=0.001, use_prior=True)
 
 if __name__=="__main__":
     main()

@@ -52,34 +52,35 @@ def create_loss_figure():
     if not os.path.exists(LOGS_PATH):
         print ("Cannot find log folder.")
         return
-    log_sub_paths = glob.glob(LOGS_PATH+'/*')
+    log_sub_paths = glob.glob('intermediate_results/optimizer_selection/logs'+'/*')
 
-    # check if there exist log files
-    if len(log_sub_paths) == 0:
-        print ("There are no log files.")
-        return
-
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
     for sub_path in log_sub_paths:
-        name = sub_path.split('/')[-1]
-        loss_files = glob.glob(sub_path+'/*pkl')
-        losses = []
-        loss_param = []
-        for lf in loss_files:
-            with open(lf, 'rb') as f:
-                cur_loss = pickle.load(f)
-                losses.append(cur_loss)
-                tmp = (lf.split('/')[-1]).split('_')[0]
-                loss_param.append(tmp)
-        x = [i for i in range(len(losses[0]))]
-        for i in range(len(losses)):
-            plt.plot(x, losses[i], label='lr='+loss_param[i], linewidth=3)
-        plt.yscale('log')
-        plt.xlabel('epochs (*100)', fontsize=12)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-        plt.ylabel('loss', fontsize=12)
-        plt.legend()
-        plt.savefig(os.path.join(FIG_DIR,'adam_'+name+'_lr.pdf'), bbox_inches='tight')
-        plt.gcf().clear()
+        layer_name = sub_path.split('/')[-1]
+        sub_sub_paths = glob.glob(sub_path+'/*')
+        for sub_sub_path in sub_sub_paths:
+            optimizer_name = sub_sub_path.split('/')[-1]
+
+            loss_files = glob.glob(sub_sub_path+'/*pkl')
+            losses = []
+            loss_param = []
+            for lf in loss_files:
+                with open(lf, 'rb') as f:
+                    cur_loss = pickle.load(f)
+                    losses.append(cur_loss)
+                    tmp = (lf.split('/')[-1]).split('_')[0]
+                    loss_param.append(tmp)
+            x = [i for i in range(len(losses[0]))]
+            for i in range(len(losses)):
+                plt.plot(x, losses[i], label='lr='+loss_param[i], linewidth=3, color=colors[i])
+            plt.yscale('log')
+            plt.xlabel('epochs (*100)', fontsize=12)
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
+            plt.ylabel('loss', fontsize=12)
+            plt.legend()
+            plt.savefig(os.path.join(FIG_DIR,optimizer_name+'_'+layer_name+'_lr.pdf'), bbox_inches='tight')
+            plt.gcf().clear()
+
 create_loss_figure()
 

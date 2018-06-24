@@ -217,7 +217,7 @@ def recon_image_by_given_layer(reshaped_target, name,
                 im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
                 im = (im*255).astype(np.uint8)
                 image_file_name = str(i+1)+'.jpg'
-                sub_img_path = RECONS_IMAGE_PATH + '/'+opt+'/' +name+'/'+'lr_'+str(lr)
+                sub_img_path = RECONS_IMAGE_PATH +'/'+name
                 if not os.path.exists(sub_img_path):
                     os.makedirs(sub_img_path)
                 img_path = sub_img_path + '/' + image_file_name
