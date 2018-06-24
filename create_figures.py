@@ -82,5 +82,5 @@ def create_loss_figure():
             plt.savefig(os.path.join(FIG_DIR,optimizer_name+'_'+layer_name+'_lr.pdf'), bbox_inches='tight')
             plt.gcf().clear()
 
-create_loss_figure()
+create_recons_image_evolution()
 

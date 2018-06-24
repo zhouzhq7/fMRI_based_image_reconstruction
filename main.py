@@ -11,12 +11,16 @@ def main():
         tmp = pickle.load(f)
     for key in tmp.keys():
         tmp[key] = tmp[key].reshape([1]+list(tmp[key].shape))
-
-    for key in tmp.keys():
-        reshaped_target = tmp[key]
+    all_layer = True
+    if all_layer:
         with tf.Graph().as_default():
-            recon_image_by_given_layer(reshaped_target, key, 200000, 10000,
-                                       use_summary=False, lr=0.001, use_prior=True)
+            recon_image_by_given_layer(tmp, 'all_layers', 20000, 1000, use_prior=True)
+    else:
+        for key in tmp.keys():
+            reshaped_target = tmp[key]
+            with tf.Graph().as_default():
+                recon_image_by_given_layer(reshaped_target, key, 200000, 10000,
+                                           use_summary=False, lr=0.001, use_prior=True)
 
 if __name__=="__main__":
     main()

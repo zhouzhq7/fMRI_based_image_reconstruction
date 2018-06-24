@@ -178,7 +178,7 @@ def get_dnn_features_by_imageid_and_layer(
 def recon_image_by_given_layer(reshaped_target, name,
                                num_of_epoches=100000, save_every=10000,
                                use_summary= False, lr=0.01, decay=0.99, momentum=0.9,
-                               opt='adam', use_prior=False):
+                               opt='adam', use_prior=True):
 
     target = tf.placeholder(tf.float32, reshaped_target.shape)
 
