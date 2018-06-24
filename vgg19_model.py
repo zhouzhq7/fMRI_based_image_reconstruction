@@ -92,8 +92,9 @@ class VGG19:
              print ("using all layers")
              for i in range(len(LAYER_TO_BE_SAVED_LESS)):
                  target_pred = self.get_layer_by_name(LAYER_TO_BE_SAVED_LESS[i])
-                 self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred)),
-                                        tf.reduce_sum(target[i]))
+                 #self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred)),
+                 #                       tf.reduce_sum(target[i]))
+                 self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred))
         else:
             target_pred = self.get_layer_by_name(name)
             self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
