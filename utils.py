@@ -177,7 +177,8 @@ def get_dnn_features_by_imageid_and_layer(
 
 def recon_image_by_given_layer(reshaped_target, name,
                                num_of_epoches=100000, save_every=10000,
-                               use_summary= False, lr=0.01, decay=0.99, momentum=0.9):
+                               use_summary= False, lr=0.01, decay=0.99, momentum=0.9,
+                               opt='adam'):
 
     target = tf.placeholder(tf.float32, reshaped_target.shape)
 
@@ -216,13 +217,17 @@ def recon_image_by_given_layer(reshaped_target, name,
                 im = (tf.get_default_graph().get_tensor_by_name('recons_image:0')).eval()[0,:,:,:]
                 im = (im*255).astype(np.uint8)
                 image_file_name = str(i+1)+'.jpg'
-                if not os.path.exists(RECONS_IMAGE_PATH + '/' +name ):
-                    os.mkdir(RECONS_IMAGE_PATH + '/' +name )
-                img_path = RECONS_IMAGE_PATH + '/' + name + '/' + image_file_name
+                sub_img_path = RECONS_IMAGE_PATH + '/'+opt+'/' +name+'/'+'lr_'+str(lr)
+                if not os.path.exists(sub_img_path):
+                    os.makedirs(sub_img_path)
+                img_path = sub_img_path + '/' + image_file_name
                 misc.imsave(img_path, im)
             if i % 100 == 0:
                 losses.append(cost)
-        loss_log_file_name = logs_path+'/'+str(lr)+'_'+str(decay)+'_'+str(momentum)+'pkl'
+        sub_log_path = os.path.join(logs_path, opt)
+        if not os.path.exists(sub_log_path):
+            os.makedirs(sub_log_path)
+        loss_log_file_name = sub_log_path+'/'+str(lr)+'_'+str(decay)+'_'+str(momentum)+'.pkl'
         with open(loss_log_file_name, 'wb') as f:
             pickle.dump(losses, f)
 

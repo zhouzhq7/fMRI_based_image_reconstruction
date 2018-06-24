@@ -61,7 +61,7 @@ def create_loss_figure():
 
     for sub_path in log_sub_paths:
         name = sub_path.split('/')[-1]
-        loss_files = glob.glob(sub_path+'/*.pkl')
+        loss_files = glob.glob(sub_path+'/*pkl')
         losses = []
         loss_param = []
         for lf in loss_files:
@@ -79,7 +79,7 @@ def create_loss_figure():
         plt.yticks(fontsize=12)
         plt.ylabel('loss', fontsize=12)
         plt.legend()
-        plt.savefig(os.path.join(FIG_DIR,'rms_'+name+'_lr.pdf'), bbox_inches='tight')
+        plt.savefig(os.path.join(FIG_DIR,'adam_'+name+'_lr.pdf'), bbox_inches='tight')
         plt.gcf().clear()
 create_loss_figure()
 

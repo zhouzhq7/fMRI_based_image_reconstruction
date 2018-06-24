@@ -9,7 +9,8 @@ import pickle
 def main():
     with open('tmp.pkl', 'rb') as f:
         tmp = pickle.load(f)
-    lr_arr = [0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6]
+    optimizer = ['adam', 'rms']
+    lr_arr = [0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7]
     for key in tmp.keys():
         tmp[key] = tmp[key].reshape([1]+list(tmp[key].shape))
 
