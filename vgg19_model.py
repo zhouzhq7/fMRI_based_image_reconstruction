@@ -12,7 +12,7 @@ class VGG19:
 
         print ("Model loaded, takes %ds." % (time.time()-start_time))
 
-    def build(self, rgb, target, name, train=False, use_prior=False):
+    def build(self, rgb, target, name, train=False, use_prior=False, use_all_layers=False):
         start_time = time.time()
         print ("Start to build model....")
         rgb_rescaled = rgb * 255.0
@@ -88,11 +88,12 @@ class VGG19:
         self.fc8 = self.fc_layer(self.relu7, "fc8")
 
         self.loss = tf.convert_to_tensor(0.0, tf.float32)
-        if isinstance(target, dict):
-             for k, v in target.items():
-                 target_pred = self.get_layer_by_name(k)
-                 self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(v, target_pred)),
-                                        tf.reduce_sum(v))
+        if use_all_layers:
+             print ("using all layers")
+             for i in range(len(LAYER_TO_BE_SAVED_LESS)):
+                 target_pred = self.get_layer_by_name(LAYER_TO_BE_SAVED_LESS[i])
+                 self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred)),
+                                        tf.reduce_sum(target[i]))
         else:
             target_pred = self.get_layer_by_name(name)
             self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))

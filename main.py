@@ -11,10 +11,15 @@ def main():
         tmp = pickle.load(f)
     for key in tmp.keys():
         tmp[key] = tmp[key].reshape([1]+list(tmp[key].shape))
+    targets = []
+    for layer_name in LAYER_TO_BE_SAVED_LESS:
+        targets.append(tmp[layer_name])
+
     all_layer = True
     if all_layer:
         with tf.Graph().as_default():
-            recon_image_by_given_layer(tmp, 'all_layers', 20000, 1000, use_prior=True)
+            recon_image_by_given_layer(targets, 'all_layers', 20000, 1000,
+                                       use_prior=True, use_all_layers=all_layer)
     else:
         for key in tmp.keys():
             reshaped_target = tmp[key]

@@ -178,14 +178,15 @@ def get_dnn_features_by_imageid_and_layer(
 def recon_image_by_given_layer(reshaped_target, name,
                                num_of_epoches=100000, save_every=10000,
                                use_summary= False, lr=0.01, decay=0.99, momentum=0.9,
-                               opt='adam', use_prior=True):
+                               opt='adam', use_prior=True, use_all_layers=False):
 
-    target = tf.placeholder(tf.float32, reshaped_target.shape)
+    #target = tf.placeholder(tf.float32, reshaped_target.shape)
 
 
     inputs = tf.Variable(tf.random_normal((1, 224, 224, 3)), name='recons_image')
     vgg19 = VGG19()
-    vgg19.build(inputs, reshaped_target, name, use_prior=use_prior)
+    vgg19.build(inputs, reshaped_target, name, use_prior=use_prior
+                , use_all_layers=use_all_layers)
     optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(vgg19.loss)
     #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr, decay=decay, momentum=momentum).minimize(vgg19.loss)
 
@@ -193,7 +194,7 @@ def recon_image_by_given_layer(reshaped_target, name,
     if use_summary:
         saver = tf.train.Saver()
 
-    feed_dict = {target: reshaped_target}
+    #feed_dict = {target: reshaped_target}
 
     # create folder to store the reconstructed images
     if not os.path.exists(RECONS_IMAGE_PATH):
@@ -206,7 +207,7 @@ def recon_image_by_given_layer(reshaped_target, name,
     with tf.Session() as sess:
         sess.run(init)
         for i in range(num_of_epoches):
-            _, cost = sess.run([optimizer, vgg19.loss], feed_dict=feed_dict)
+            _, cost = sess.run([optimizer, vgg19.loss])
             print ("Processing %s, epoch %d/%d, cost: %.4f" % (name, (i+1), num_of_epoches, cost))
             if (i+1) % save_every == 0:
                 start_time = time.time()
