@@ -59,17 +59,13 @@ def read_images(print_not_found=False, image_id_file = TRAINING_IMAGE_ID_FILE
     return {"image_ids": new_image_id_and_category_id,
             "rescaled_images": np.array(rescaled_images)}
 
-def save_dnn_feature_map(image_ids, features, all_layers=True):
+def save_dnn_feature_map(image_ids, features,image_features_file_name,
+                        all_layers=True):
     if features == None:
         raise Exception("Input features is empty")
         return
 
-    if all_layers:
-        LAYER_TO_BE_SAVED = LAYER_TO_BE_SAVED_FULL
-        RESULT_FILE = os.path.join(RESULT_DIR, IMAGE_FEATURES_FILE_NAME_FULL)
-    else:
-        LAYER_TO_BE_SAVED = LAYER_TO_BE_SAVED_LESS
-        RESULT_FILE = os.path.join(RESULT_DIR, IMAGE_FEATURES_FILE_NAME_LESS)
+    RESULT_FILE = os.path.join(RESULT_DIR, image_features_file_name)
 
     if len(LAYER_TO_BE_SAVED) != len(features):
         raise Exception("Length of names and features unmatches.")
@@ -87,12 +83,10 @@ def save_dnn_feature_map(image_ids, features, all_layers=True):
                 grp.create_dataset(LAYER_TO_BE_SAVED[j], data=features[j][i])
     print ("Data saved. takes %.2fs" %(time.time() - start_time))
 
-def extract_dnn_features(data, **args):
+def extract_dnn_features(data, batch_size=10, save_every=100):
     data_shape = data["rescaled_images"].shape
-    batch_size = args['batch_size']
     num_of_batch = int(data_shape[0]/batch_size)+1
 
-    save_every = args['save_every']
 
     inputs = tf.placeholder("float", (None, 224, 224, 3))
 
