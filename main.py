@@ -6,7 +6,7 @@ import numpy as np
 from scipy import misc
 import pickle
 
-def main():
+def reconstruct_images():
     with open('tmp.pkl', 'rb') as f:
         tmp = pickle.load(f)
     for key in tmp.keys():
@@ -26,6 +26,11 @@ def main():
             with tf.Graph().as_default():
                 recon_image_by_given_layer(reshaped_target, key, 200000, 10000,
                                            use_summary=False, lr=0.001, use_prior=True)
+
+def main():
+    data = read_images(print_not_found=True, image_id_file=TEST_IMAGE_ID_FILE,
+                image_dir=TEST_IMAGE_DIR)
+    pass
 
 if __name__=="__main__":
     main()
