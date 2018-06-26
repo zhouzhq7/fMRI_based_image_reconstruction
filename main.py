@@ -30,7 +30,8 @@ def reconstruct_images():
 def main():
     data = read_images(print_not_found=True, image_id_file=TEST_IMAGE_ID_FILE,
                 image_dir=TEST_IMAGE_DIR)
-    pass
+
+    extract_dnn_features(data)
 
 if __name__=="__main__":
     main()
