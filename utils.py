@@ -66,7 +66,10 @@ def save_dnn_feature_map(image_ids, features,image_features_file_name,
         return
 
     RESULT_FILE = os.path.join(RESULT_DIR, image_features_file_name)
-
+    if all_layers:
+        LAYER_TO_BE_SAVED = LAYER_TO_BE_SAVED_FULL
+    else:
+        LAYER_TO_BE_SAVED = LAYER_TO_BE_SAVED_LESS
     if len(LAYER_TO_BE_SAVED) != len(features):
         raise Exception("Length of names and features unmatches.")
     if len(image_ids) != (features[0].shape[0]):
