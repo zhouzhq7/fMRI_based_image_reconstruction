@@ -3,7 +3,9 @@ import os
 
 DATA_DIR = "./data"
 TRAINING_IMAGE_ID_FILE = "imageID_training.csv"
+TEST_IMAGE_ID_FILE = "imageID_test.csv"
 TRAIN_IMAGE_DIR = "./data/train"
+TEST_IMAGE_DIR = "./data/test"
 VGG19_INPUT_IMAGE_SIZE = (224, 224, 3)
 
 # path constants for extracted images feature file

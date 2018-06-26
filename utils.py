@@ -9,13 +9,14 @@ from vgg19_model import VGG19
 import copy
 import pickle
 
-def read_images(print_not_found=False):
+def read_images(print_not_found=False, image_id_file = TRAINING_IMAGE_ID_FILE
+                , image_dir = TRAIN_IMAGE_DIR):
     # Read images ids from csv file
     print ("Start to load images...")
 
     start_time = time.time()
 
-    imageid_file = os.path.join(DATA_DIR, TRAINING_IMAGE_ID_FILE)
+    imageid_file = os.path.join(DATA_DIR, image_id_file)
     with open(imageid_file, 'r') as f:
         image_ids = list(csv.reader(f, delimiter=','))
 
@@ -24,7 +25,7 @@ def read_images(print_not_found=False):
     cnt_not_found = 0
     for img_id in image_ids:
 
-        cur_img_path = os.path.join(TRAIN_IMAGE_DIR, img_id[1])
+        cur_img_path = os.path.join(image_dir, img_id[1])
 
         # Deal with the situation where image cannot be found
         if not os.path.isfile(cur_img_path):

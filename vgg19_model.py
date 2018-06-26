@@ -12,7 +12,7 @@ class VGG19:
 
         print ("Model loaded, takes %ds." % (time.time()-start_time))
 
-    def build(self, rgb, target, name, train=False, use_prior=False, use_all_layers=False):
+    def build(self, rgb, target=None, name=None, use_prior=False, use_all_layers=False):
         start_time = time.time()
         print ("Start to build model....")
         rgb_rescaled = rgb * 255.0
@@ -39,44 +39,29 @@ class VGG19:
 
         self.conv1_1 = self.conv_layer(bgr, "conv1_1")
         self.conv1_2 = self.conv_layer(self.conv1_1, "conv1_2")
-        if train:
-            self.pool1 = self.max_pool(self.conv1_2, "pool1")
-        else:
-            self.pool1 = self.avg_pool(self.conv1_2, 'pool1')
+        self.pool1 = self.max_pool(self.conv1_2, "pool1")
 
         self.conv2_1 = self.conv_layer(self.pool1, "conv2_1")
         self.conv2_2 = self.conv_layer(self.conv2_1, "conv2_2")
-        if train:
-            self.pool2 = self.max_pool(self.conv2_2, 'pool2')
-        else:
-            self.pool2 = self.avg_pool(self.conv2_2, 'pool2')
+        self.pool2 = self.max_pool(self.conv2_2, 'pool2')
 
         self.conv3_1 = self.conv_layer(self.pool2, "conv3_1")
         self.conv3_2 = self.conv_layer(self.conv3_1, "conv3_2")
         self.conv3_3 = self.conv_layer(self.conv3_2, "conv3_3")
         self.conv3_4 = self.conv_layer(self.conv3_3, "conv3_4")
-        if train:
-            self.pool3 = self.max_pool(self.conv3_4, 'pool3')
-        else:
-            self.pool3 = self.avg_pool(self.conv3_4, 'pool3')
+        self.pool3 = self.max_pool(self.conv3_4, 'pool3')
 
         self.conv4_1 = self.conv_layer(self.pool3, "conv4_1")
         self.conv4_2 = self.conv_layer(self.conv4_1, "conv4_2")
         self.conv4_3 = self.conv_layer(self.conv4_2, "conv4_3")
         self.conv4_4 = self.conv_layer(self.conv4_3, "conv4_4")
-        if train:
-            self.pool4 = self.max_pool(self.conv4_4, 'pool4')
-        else:
-            self.pool4 = self.avg_pool(self.conv4_4, 'pool4')
+        self.pool4 = self.max_pool(self.conv4_4, 'pool4')
 
         self.conv5_1 = self.conv_layer(self.pool4, "conv5_1")
         self.conv5_2 = self.conv_layer(self.conv5_1, "conv5_2")
         self.conv5_3 = self.conv_layer(self.conv5_2, "conv5_3")
         self.conv5_4 = self.conv_layer(self.conv5_3, "conv5_4")
-        if train:
-            self.pool5 = self.max_pool(self.conv5_4, 'pool5')
-        else:
-            self.pool5 = self.avg_pool(self.conv5_4, 'pool5')
+        self.pool5 = self.max_pool(self.conv5_4, 'pool5')
 
         self.fc6 = self.fc_layer(self.pool5, "fc6")
         assert self.fc6.get_shape().as_list()[1:] == [4096]
@@ -88,20 +73,21 @@ class VGG19:
         self.fc8 = self.fc_layer(self.relu7, "fc8")
 
         self.loss = tf.convert_to_tensor(0.0, tf.float32)
-        if use_all_layers:
-             print ("using all layers")
-             for i in range(len(LAYER_TO_BE_SAVED_LESS)):
-                 target_pred = self.get_layer_by_name(LAYER_TO_BE_SAVED_LESS[i])
-                 #self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred)),
-                 #                       tf.reduce_sum(target[i]))
-                 self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred))
-        else:
-            target_pred = self.get_layer_by_name(name)
-            self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
-        if use_prior:
-            im = tf.get_default_graph().get_tensor_by_name('recons_image:0')
-            tv_image = tf.image.total_variation(im)
-            self.loss += tv_image
+        if target is not None:
+            if use_all_layers:
+                 print ("using all layers")
+                 for i in range(len(LAYER_TO_BE_SAVED_LESS)):
+                     target_pred = self.get_layer_by_name(LAYER_TO_BE_SAVED_LESS[i])
+                     #self.loss += tf.divide(tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred)),
+                     #                       tf.reduce_sum(target[i]))
+                     self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target[i], target_pred))
+            else:
+                target_pred = self.get_layer_by_name(name)
+                self.loss += tf.reduce_mean(tf.losses.mean_squared_error(target, target_pred))
+            if use_prior:
+                im = tf.get_default_graph().get_tensor_by_name('recons_image:0')
+                tv_image = tf.image.total_variation(im)
+                self.loss += tv_image
 
         self.prob = tf.nn.softmax(self.fc8, name="prob")
 
