@@ -83,7 +83,7 @@ def save_dnn_feature_map(image_ids, features,image_features_file_name,
                 grp.create_dataset(LAYER_TO_BE_SAVED[j], data=features[j][i])
     print ("Data saved. takes %.2fs" %(time.time() - start_time))
 
-def extract_dnn_features(data, batch_size=10, save_every=100):
+def extract_dnn_features(data, save_dir, batch_size=10, save_every=100):
     data_shape = data["rescaled_images"].shape
     num_of_batch = int(data_shape[0]/batch_size)+1
 
@@ -127,7 +127,8 @@ def extract_dnn_features(data, batch_size=10, save_every=100):
                     for j in range(len(layers_so_far)):
                         layers_so_far[j] = np.concatenate((layers_so_far[j], layers[j]) , axis=0)
         if (i+1) % save_every == 0 or i == num_of_batch-1:
-            save_dnn_feature_map(features=layers_so_far, image_ids=images_id_so_far, all_layers=False)
+            save_dnn_feature_map(features=layers_so_far, image_ids=images_id_so_far,
+                                 image_features_file_name=save_dir)
             layers_so_far = []
             images_id_so_far = []
 

@@ -31,7 +31,7 @@ def main():
     data = read_images(print_not_found=True, image_id_file=TEST_IMAGE_ID_FILE,
                 image_dir=TEST_IMAGE_DIR)
 
-    extract_dnn_features(data)
+    extract_dnn_features(data, save_dir=TEST_IMAGE_FEATURES_FILE_NAME_LESS)
 
 if __name__=="__main__":
     main()
