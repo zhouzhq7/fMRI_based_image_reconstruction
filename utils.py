@@ -131,7 +131,7 @@ def extract_dnn_features(data, save_dir, batch_size=10, save_every=100):
                         layers_so_far[j] = np.concatenate((layers_so_far[j], layers[j]) , axis=0)
         if (i+1) % save_every == 0 or i == num_of_batch-1:
             save_dnn_feature_map(features=layers_so_far, image_ids=images_id_so_far,
-                                 image_features_file_name=save_dir)
+                                 image_features_file_name=save_dir, all_layers=False)
             layers_so_far = []
             images_id_so_far = []
 
